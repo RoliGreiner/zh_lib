@@ -1,0 +1,29 @@
+#ifndef WIDGET_H
+#define WIDGET_H
+
+#include "graphics.hpp"
+
+using namespace genv;
+
+struct Vector2 {
+    int x, y;
+};
+struct Color {
+    int r, g, b, a;
+};
+
+class Widget {
+protected:
+    Vector2 position;
+    Vector2 size;
+    Color texture;
+    bool transparent;
+    const int BORDER_SIZE = 2;
+public:
+    Widget(Vector2 position, Vector2 size, Color texture, bool transparent = false);
+    virtual ~Widget() = default;
+    virtual void Draw();
+    virtual bool UnderMouse(Vector2 mouse_position);
+};
+
+#endif // WIDGET_H
