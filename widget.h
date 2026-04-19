@@ -1,3 +1,7 @@
+//
+// Created by larix on 2026. 04. 20..
+//
+
 #ifndef WIDGET_H
 #define WIDGET_H
 
@@ -14,9 +18,9 @@ struct Color {
 
 class Widget {
 protected:
-    Vector2 position;
-    Vector2 size;
-    Color texture;
+    Vector2 position{};
+    Vector2 size{};
+    Color texture{};
     bool transparent;
     const int BORDER_SIZE = 2;
 public:

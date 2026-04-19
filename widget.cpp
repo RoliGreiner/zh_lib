@@ -1,9 +1,14 @@
+//
+// Created by larix on 2026. 04. 20..
+//
+
 #include "widget.h"
-#include "graphics.hpp"
 
-using namespace genv;
-
-Widget::Widget(Vector2 position, Vector2 size, Color texture, bool transparent) : position(position), size(size), texture(texture), transparent(transparent) {
+Widget::Widget(Vector2 position, Vector2 size, Color texture, bool transparent) {
+    this->position = position;
+    this->size = size;
+    this->texture = texture;
+    this->transparent = transparent;
 }
 
 void Widget::Draw() {
