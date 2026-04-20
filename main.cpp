@@ -3,6 +3,8 @@
 #include <vector>
 #include <iostream>
 
+#include "slider.h"
+
 using namespace genv;
 using namespace std;
 
@@ -11,9 +13,6 @@ const int HEIGHT = 800;
 
 void EventLoop(vector<Widget*> widgets);
 void ClearWindow();
-void Test() {
-    cout << "Hello" << endl;
-}
 
 class App {
     vector<Widget*> widgets;
@@ -27,10 +26,15 @@ public:
         widgets.push_back(new Button(
             {200, 500},
             {100, 40},
-            {255, 255, 255},
+            {200, 100, 50},
             "Hello",
-            [this]() { this->Test();}
+            [this] {Test();}
         ));
+        widgets.push_back(new Slider(
+            {WIDTH / 2, HEIGHT / 2},
+            {200, 20},
+            {255, 255, 255},
+            0, 100, 50));
     }
     void Start() {
         EventLoop(widgets);
@@ -52,25 +56,28 @@ int main() {
 
 void EventLoop(vector<Widget*> widgets) {
     event ev;
+    int focus = -1;
     while (gin >> ev && ev.keycode != key_escape) {
         ClearWindow();
-
         if (ev.button == btn_left) {
-            for (Widget* widget : widgets) {
-                Button* button = dynamic_cast<Button*>(widget);
-
-                if (button != nullptr) {
-                    if (button->UnderMouse({ev.pos_x, ev.pos_y})) {
-                        button->Press();
-                    }
+            for (int i = 0; i < widgets.size(); i++) {
+                if (widgets[i]->UnderMouse({ev.pos_x, ev.pos_y})) {
+                    focus = i;
+                    break;;
+                }
+                if (i == widgets.size() - 1) {
+                    focus = -1;
                 }
             }
+        }
+
+        if (focus != -1) {
+            widgets[focus]->Interact(ev);
         }
 
         for (Widget* widget : widgets) {
             widget->Draw();
         }
-
         gout << refresh;
     }
 }

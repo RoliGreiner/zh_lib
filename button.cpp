@@ -18,7 +18,7 @@ void Button::Draw() {
 
     //belseje
     gout << move_to(position.x - size.x / 2 + BORDER_SIZE, position.y - size.y / 2 + BORDER_SIZE)
-            << color(texture.r, texture.g, texture.b)
+            << (pressed ? color(texture.r - 50, texture.g - 50, texture.b - 50) : color(texture.r, texture.g, texture.b))
             << box(size.x - BORDER_SIZE * 2, size.y - BORDER_SIZE * 2);
 
     //szüveg
@@ -27,8 +27,12 @@ void Button::Draw() {
          << genv::text(text);
 }
 
-void Button::Press() {
-    if (on_press) {
+void Button::Interact(event ev) {
+    if (on_press && ev.button == btn_left) {
+        pressed = true;
         on_press();
+    }
+    if (pressed && ev.button == -btn_left) {
+        pressed = false;
     }
 }

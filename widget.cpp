@@ -25,6 +25,10 @@ void Widget::Draw() {
     }
 }
 
+void Widget::Interact(event ev) {
+
+}
+
 bool Widget::UnderMouse(Vector2 mouse_position) {
     return abs(mouse_position.x - position.x) <= size.x / 2 &&
            abs(mouse_position.y - position.y) <= size.y / 2;
