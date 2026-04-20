@@ -4,6 +4,7 @@
 
 #ifndef SLIDER_H
 #define SLIDER_H
+
 #include "widget.h"
 
 class Slider : public Widget {

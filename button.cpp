@@ -5,7 +5,7 @@
 #include "button.h"
 
 Button::Button(Vector2 position, Vector2 size, Color texture, string text, function<void()> on_press)
-        : Widget(position, size, texture) {
+: Widget(position, size, texture) {
     this->text = text;
     this->on_press = on_press;
 }

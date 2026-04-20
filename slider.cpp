@@ -17,14 +17,15 @@ Slider::Slider(Vector2 position, Vector2 size, Color texture, int min_value, int
 
 void Slider::Draw() {
      //keret
-     gout << move_to(position.x - size.x / 2, position.y - size.y / 2)
+     gout << move_to(position.x - size.x / 2, position.y - size.y / 2 + 5)
           << color(60, 60, 60)
-          << box(size.x, size.y);
+          << box(size.x, size.y - 10);
 
      //belseje
-     gout << move_to(position.x - size.x / 2 + BORDER_SIZE, position.y - size.y / 2 + BORDER_SIZE)
+     gout << move_to(position.x - size.x / 2 + BORDER_SIZE, position.y - size.y / 2 + BORDER_SIZE + 5)
           << color(texture.r, texture.g, texture.b)
-          << box(size.x - BORDER_SIZE * 2, size.y - BORDER_SIZE * 2);
+          << box(size.x - BORDER_SIZE * 2, size.y - BORDER_SIZE * 2 - 10);
+
      //handle
      gout << move_to(handle_position.x - size.y / 2, handle_position.y - size.y / 2)
           << color(60, 60, 60)
@@ -44,6 +45,6 @@ void Slider::Interact(event ev) {
      }
      if (pressed) {
           handle_position.x = clamp(ev.pos_x, position.x - size.x / 2, position.x + size.x / 2);
-          //value = max_value * (size.x / (position.x - size.x / 2 - handle_position.x));
+          value = min_value + (max_value - min_value) * (float(handle_position.x - (position.x - size.x / 2)) / size.x);
      }
 }
