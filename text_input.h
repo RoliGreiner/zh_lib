@@ -19,6 +19,7 @@ public:
     TextInput(Vector2 position, Vector2 size, Color texture, string ghost_text = "", bool transparent = false);
     void Draw() override;
     void Interact(event ev) override;
+    string GetText();
 };
 
 #endif //TEXT_INPUT_H

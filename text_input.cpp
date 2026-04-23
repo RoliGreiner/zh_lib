@@ -55,3 +55,7 @@ void TextInput::Interact(event ev) {
         }
     }
 }
+
+string TextInput::GetText() {
+    return text;
+}

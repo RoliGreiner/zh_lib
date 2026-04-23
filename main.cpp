@@ -2,8 +2,10 @@
 #include "button.h"
 #include "slider.h"
 #include "text_input.h"
+#include "text_field.h"
 #include <vector>
 #include <iostream>
+#include <fstream>
 
 using namespace genv;
 using namespace std;
@@ -47,14 +49,36 @@ public:
         widgets.push_back(new Slider(
             {500, 200},
             {200, 20},
-            {255, 255, 255},
+            {255, 200, 255},
             0, 100, 50
+        ));
+        widgets.push_back(new Slider(
+            {800, HEIGHT / 2},
+            {200, 20},
+            {255, 255, 255},
+            0, 100, 50,
+            Orientation::VERTICAL
         ));
         widgets.push_back(new TextInput(
             {500, 300},
             {500, 40},
             {255, 255, 255},
             "Test"
+        ));
+
+        vector<string> text;
+        fstream fin("angol.txt");
+        while (fin.good()) {
+            string line;
+            getline(fin, line);
+            text.push_back(line);
+        }
+
+        widgets.push_back(new TextField(
+            {WIDTH / 2, 600},
+            {500, 300},
+            {200, 200, 200},
+            text
         ));
     }
     void Start() {

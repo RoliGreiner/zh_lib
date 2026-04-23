@@ -11,7 +11,8 @@ add_library(widget widget.cpp)
 add_library(button button.cpp)
 add_library(slider slider.cpp)
 add_library(text_input text_input.cpp)
+add_library(text_field text_field.cpp)
 
 
 add_executable(main main.cpp)
-target_link_libraries(main graphics widget button slider text_input)
+target_link_libraries(main graphics widget button slider text_input text_field)
