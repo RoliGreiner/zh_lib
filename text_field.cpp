@@ -4,9 +4,10 @@
 
 #include "text_field.h"
 
-TextField::TextField(Vector2 position, Vector2 size, Color texture, vector<string> text, bool transparent)
+TextField::TextField(Vector2 position, Vector2 size, Color texture, vector<string> text, bool resizable, bool transparent)
     : Widget(position, size, texture, transparent) {
     this->text = text;
+    this->resizable = resizable;
     int max_width = 0;
     for (int i = 0; i < text.size(); i++) {
         max_width = max(max_width, gout.twidth(text[i]));
@@ -60,6 +61,23 @@ void TextField::Draw() {
 }
 
 void TextField::Interact(event ev) {
+    //méretezés
+    if (ev.type == ev_mouse && resizable) {
+        if ((size.x / 2 >= abs(ev.pos_x - position.x) && size.x / 2 <= abs(ev.pos_x - position.x) + 2) ||
+            (size.y / 2 >= abs(ev.pos_y - position.y) && size.y / 2 <= abs(ev.pos_y - position.y) + 2)) {
+            if (ev.button == btn_left) {
+                pressed = true;
+            }
+        }
+        if (ev.button == -btn_left) {
+            pressed = false;
+        }
+        if (pressed) {
+            size.x = 2 * abs(ev.pos_x - position.x);
+            size.y = 2 * abs(ev.pos_y - position.y);
+        }
+    }
+
     if (ev.button == btn_wheeldown) {
         if (++current_line > text.size() - (size.y - 2 * (BORDER_SIZE + APPEND)) / (gout.cascent() + gout.cdescent()))
             current_line = text.size() - (size.y - 2 * (BORDER_SIZE + APPEND)) / (gout.cascent() + gout.cdescent());

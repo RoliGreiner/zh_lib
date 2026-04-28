@@ -78,7 +78,8 @@ public:
             {WIDTH / 2, 600},
             {500, 300},
             {200, 200, 200},
-            text
+            text,
+            true
         ));
     }
     void Start() {
