@@ -6,6 +6,7 @@
 #define SLIDER_H
 
 #include "widget.h"
+#include <algorithm>
 
 enum class Orientation {
     HORIZONTAL,
@@ -23,6 +24,8 @@ public:
     Slider(Vector2 position, Vector2 size, Color texture, int min_value, int max_value, int value = 0, Orientation orientation = Orientation::HORIZONTAL, bool transparent = false);
     void Draw() override;
     void Interact(event ev) override;
+    int GetValue() { return value; }
+    void SetValue(int v) { value = std::clamp(v, min_value, max_value); }
 };
 
 #endif //SLIDER_H

@@ -15,4 +15,4 @@ add_library(text_field text_field.cpp)
 
 
 add_executable(main main.cpp)
-target_link_libraries(main graphics widget button slider text_input text_field)
+target_link_libraries(main button slider text_input text_field widget graphics)

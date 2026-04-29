@@ -10,8 +10,8 @@
 using namespace genv;
 using namespace std;
 
-const int WIDTH = 1000;
-const int HEIGHT = 800;
+const int WIDTH = 1200;
+const int HEIGHT = 1000;
 
 void EventLoop(vector<Widget*> widgets);
 void ClearWindow();
@@ -27,6 +27,7 @@ public:
         cout << "Bobr" << endl;
     }
     App() {
+        /*
         widgets.push_back(new Widget(
             {WIDTH / 2, 50},
             {500, 80},
@@ -65,6 +66,7 @@ public:
             {255, 255, 255},
             "Test"
         ));
+        */
 
         vector<string> text;
         fstream fin("angol.txt");
@@ -73,14 +75,22 @@ public:
             getline(fin, line);
             text.push_back(line);
         }
+        fin.close();
 
         widgets.push_back(new TextField(
-            {WIDTH / 2, 600},
+            {WIDTH / 2, HEIGHT / 2},
             {500, 300},
             {200, 200, 200},
             text,
+            16,
             true
         ));
+
+        ClearWindow();
+        for (Widget* widget : widgets) {
+            widget->Draw();
+        }
+        gout << refresh;
     }
     void Start() {
         EventLoop(widgets);

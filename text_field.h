@@ -11,14 +11,19 @@ using namespace std;
 
 class TextField : public Widget {
 protected:
-    vector<string> text;
+    vector<string> raw_text;
+    vector<string> wrapped_text;
+    int font_size;
     canvas can;
     int current_line = 0;
     bool resizable;
     bool pressed = false;
-    const int APPEND = 2;
+    const int APPEND = 3;
+
+    void UpdateCanvas();
+
 public:
-    TextField(Vector2 position, Vector2 size, Color texture, vector<string> text, bool resizable = false, bool transparent = false);
+    TextField(Vector2 position, Vector2 size, Color texture, vector<string> text, int font_size, bool resizable = false, bool transparent = false);
     void Draw() override;
     void Interact(event ev) override;
 };
