@@ -1,5 +1,0 @@
-A projekt a 3. beadandónak a [választott feladat] feladatát tartalmazza.
-A beadando_3 branch kifejezetten a beadandóhoz lett elkészítve, ugyan is maga a zh_lib repository alapjáraton csak a widgeteket tartalmazza.
-
-- zh lib -> https://github.com/RoliGreiner/zh_lib.git
-- beadandó -> https://github.com/RoliGreiner/zh_lib/tree/beadando_3
