@@ -9,6 +9,8 @@
 
 using namespace genv;
 
+class App;
+
 struct Vector2 {
     int x, y;
 };
@@ -18,6 +20,7 @@ struct Color {
 
 class Widget {
 protected:
+    App* app;
     Vector2 position{};
     Vector2 size{};
     bool active = false;
@@ -25,7 +28,7 @@ protected:
     bool transparent;
     const int BORDER_SIZE = 2;
 public:
-    Widget(Vector2 position, Vector2 size, Color texture, bool transparent = false);
+    Widget(App* app, Vector2 position, Vector2 size, Color texture, bool transparent = false);
     virtual ~Widget() = default;
     virtual void Draw();
     virtual void Interact(event ev);

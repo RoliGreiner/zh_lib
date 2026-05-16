@@ -3,12 +3,18 @@
 //
 
 #include "widget.h"
+#include "app.h"
 
-Widget::Widget(Vector2 position, Vector2 size, Color texture, bool transparent) {
+Widget::Widget(App* app, Vector2 position, Vector2 size, Color texture, bool transparent) {
+    this->app = app;
     this->position = position;
     this->size = size;
     this->texture = texture;
     this->transparent = transparent;
+
+    if (app) {
+        app->RegisterWidget(this);
+    }
 }
 
 void Widget::Draw() {
@@ -33,9 +39,3 @@ bool Widget::UnderMouse(Vector2 mouse_position) {
     return abs(mouse_position.x - position.x) <= size.x / 2 &&
            abs(mouse_position.y - position.y) <= size.y / 2;
 }
-
-
-
-
-
-

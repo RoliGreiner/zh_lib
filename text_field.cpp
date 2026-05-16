@@ -6,8 +6,8 @@
 #include <sstream>
 #include <algorithm>
 
-TextField::TextField(Vector2 position, Vector2 size, Color texture, vector<string> text, int font_size, bool resizable, bool transparent)
-    : Widget(position, size, texture, transparent) {
+TextField::TextField(App* app, Vector2 position, Vector2 size, Color texture, vector<string> text, int font_size, bool resizable, bool transparent)
+    : Widget(app, position, size, texture, transparent) {
     this->raw_text = text;
     this->font_size = font_size;
     this->resizable = resizable;

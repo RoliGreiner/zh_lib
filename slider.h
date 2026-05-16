@@ -21,7 +21,7 @@ protected:
     bool pressed = false;
     Orientation orientation;
 public:
-    Slider(Vector2 position, Vector2 size, Color texture, int min_value, int max_value, int value = 0, Orientation orientation = Orientation::HORIZONTAL, bool transparent = false);
+    Slider(App* app, Vector2 position, Vector2 size, Color texture, int min_value, int max_value, int value = 0, Orientation orientation = Orientation::HORIZONTAL, bool transparent = false);
     void Draw() override;
     void Interact(event ev) override;
     int GetValue() { return value; }

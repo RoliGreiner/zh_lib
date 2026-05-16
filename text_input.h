@@ -16,7 +16,7 @@ protected:
     int cursor_index;
     const int APPEND = 5;
 public:
-    TextInput(Vector2 position, Vector2 size, Color texture, string ghost_text = "", bool transparent = false);
+    TextInput(App* app, Vector2 position, Vector2 size, Color texture, string ghost_text = "", bool transparent = false);
     void Draw() override;
     void Interact(event ev) override;
     string GetText();

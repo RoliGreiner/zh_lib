@@ -8,8 +8,8 @@
 
 using namespace std;
 
-Slider::Slider(Vector2 position, Vector2 size, Color texture, int min_value, int max_value, int value, Orientation orientation, bool transparent)
-: Widget(position, size, texture, transparent) {
+Slider::Slider(App* app, Vector2 position, Vector2 size, Color texture, int min_value, int max_value, int value, Orientation orientation, bool transparent)
+: Widget(app, position, size, texture, transparent) {
      this->min_value = min_value;
      this->max_value = max_value;
      this->value = value;

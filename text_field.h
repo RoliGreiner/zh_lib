@@ -23,7 +23,7 @@ protected:
     void UpdateCanvas();
 
 public:
-    TextField(Vector2 position, Vector2 size, Color texture, vector<string> text, int font_size, bool resizable = false, bool transparent = false);
+    TextField(App* app, Vector2 position, Vector2 size, Color texture, vector<string> text, int font_size, bool resizable = false, bool transparent = false);
     void Draw() override;
     void Interact(event ev) override;
 };

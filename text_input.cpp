@@ -4,8 +4,8 @@
 
 #include "text_input.h"
 
-TextInput::TextInput(Vector2 position, Vector2 size, Color texture, string ghost_text, bool transparent)
-: Widget(position, size, texture, transparent) {
+TextInput::TextInput(App* app, Vector2 position, Vector2 size, Color texture, string ghost_text, bool transparent)
+: Widget(app, position, size, texture, transparent) {
     this->ghost_text = ghost_text;
     this->text = "";
     this->cursor_index = 0;

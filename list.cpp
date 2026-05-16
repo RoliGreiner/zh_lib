@@ -4,8 +4,8 @@
 
 #include "list.h"
 
-List::List(Vector2 position, Vector2 size, Color texture, vector<string> items, int max_visible_items)
-    : Widget(position, size, texture) {
+List::List(App* app, Vector2 position, Vector2 size, Color texture, vector<string> items, int max_visible_items)
+    : Widget(app, position, size, texture) {
     this->items = items;
     this->max_visible_items = max_visible_items;
     selected_index = 0;

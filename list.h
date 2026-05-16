@@ -18,7 +18,7 @@ protected:
     bool opened;
 
 public:
-    List(Vector2 position, Vector2 size, Color texture, vector<string> items, int max_visible_items = 5);
+    List(App* app, Vector2 position, Vector2 size, Color texture, vector<string> items, int max_visible_items = 5);
     void Draw() override;
     void Interact(event ev) override;
     bool UnderMouse(Vector2 mouse_pos) override;
