@@ -10,13 +10,15 @@ add_executable(main
         graphics.cpp
         widget.cpp
         app.cpp
+        scene.cpp
         button.cpp
         slider.cpp
-        text_input.cpp
-        text_field.cpp
-        list.cpp
         label.cpp
         container.cpp
+        game_master.cpp
+        menu_scene.cpp
+        game_scene.cpp
+        end_scene.cpp
 )
 
 target_link_libraries(main SDL2 SDL2_ttf)

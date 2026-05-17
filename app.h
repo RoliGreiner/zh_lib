@@ -10,14 +10,20 @@
 
 using namespace std;
 
-class Widget;
+class Scene;
 
 class App {
     int width;
     int height;
     int default_font_size;
+    bool quit_requested = false;
 
-    vector<Widget*> widgets;
+    vector<Scene*> scenes;
+    Scene* active_scene;
+    Scene* previous_scene;
+
+    Scene* registration_target;
+    vector<Widget*> active_widgets;
 
 public:
     App(int width = 1200, int height = 1000, int font_size = 20);
@@ -27,11 +33,24 @@ public:
     int Height() const { return height; }
     int FontSize() const { return default_font_size; }
 
-    void RegisterWidget(Widget* w);
+    void AddScene(Scene* scene);
+    void SwitchTo(Scene* scene);
+
+    Scene* ActiveScene() const { return active_scene; }
+    Scene* PreviousScene() const { return previous_scene; }
+
+    void RegisterWidget(Widget* widget);
+
+    void SetRegistrationTarget(Scene* target) { registration_target = target; }
+    Scene* GetRegistrationTarget() const { return registration_target; }
+
+    void RefreshActiveWidgets();
+
+    void Start();
+    void Quit();
     void ClearWindow();
     void Refresh();
     void EventLoop();
-    void Start();
 };
 
 #endif // APP_H

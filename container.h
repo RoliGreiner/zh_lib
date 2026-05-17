@@ -6,12 +6,16 @@
 #define CONTAINER_H
 
 #include "widget.h"
+#include <functional>
+
+using namespace std;
 
 class Container : public Widget {
 protected:
     Widget* held;
     bool locked;
     Color locked_border_color;
+    function<void()> on_click;
 
     void FitHeldToSelf();
 
@@ -24,12 +28,13 @@ public:
     Widget* AttachWidget(Widget* widget);
     Widget* DetachWidget();
 
-    //zárolás kezelése
     void Lock() { locked = true; }
     void Unlock() { locked = false; }
     bool IsLocked() const { return locked; }
 
     Widget* GetHeld() const { return held; }
+
+    void SetOnClick(function<void()> callback) { on_click = callback; }
 };
 
 #endif //CONTAINER_H

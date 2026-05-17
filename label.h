@@ -17,6 +17,8 @@ class Label : public Widget {
 public:
     Label(App* app, Vector2 position, Vector2 size, Color texture, string text, int font_size, bool transparent = false);
     void Draw() override;
+    void SetText(string new_text) { text = new_text; }
+    string GetText() const { return text; }
 };
 
 
