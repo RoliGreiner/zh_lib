@@ -19,9 +19,6 @@ class App {
 
     vector<Widget*> widgets;
 
-    Widget* list_a;
-    Widget* list_b;
-
 public:
     App(int width = 1200, int height = 1000, int font_size = 20);
     ~App();
@@ -31,7 +28,6 @@ public:
     int FontSize() const { return default_font_size; }
 
     void RegisterWidget(Widget* w);
-    void MoveItem(Widget* from, Widget* to);
     void ClearWindow();
     void Refresh();
     void EventLoop();

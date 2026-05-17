@@ -2,15 +2,8 @@
 // Created by larix on 2026. 05. 15..
 //
 
-#include "app.h"
-#include "button.h"
-#include "list.h"
-#include "label.h"
-// #include "slider.h"
-// #include "text_input.h"
-// #include "text_field.h"
-
 #include "graphics.hpp"
+#include "app.h"
 
 using namespace genv;
 using namespace std;
@@ -21,17 +14,9 @@ App::App(int width, int height, int font_size)
     gout << font("LiberationMono-Regular.ttf", 20);
     gout << refresh;
 
-    list_a = new List(this, {100, 100}, {150, 30}, {255, 255, 255},
-                      {"egy", "kettő", "hat"});
+    //widgetek
 
-    list_b = new List(this, {300, 100}, {150, 30}, {255, 255, 255},
-                      {"alma", "körte", "banán", "málna"});
 
-    new Button(this, {100, 50}, {100, 50}, {255, 255, 255}, "jobbra",
-               [this]{ MoveItem(list_b, list_a); });
-
-    new Button(this, {300, 50}, {100, 50}, {255, 255, 255}, "balra",
-               [this]{ MoveItem(list_a, list_b); });
 
     new Label(this, {width / 2, height / 2}, {200, 40}, {255, 255, 255}, "Hello", 16);
 
@@ -48,14 +33,6 @@ App::~App() {
 
 void App::RegisterWidget(Widget* w) {
     widgets.push_back(w);
-}
-
-void App::MoveItem(Widget* from, Widget* to) {
-    string item = dynamic_cast<List *>(from)->GetValue();
-    if (!item.empty()) {
-        dynamic_cast<List *>(to)->AddItem(item);
-        dynamic_cast<List *>(from)->RemoveCurrent();
-    }
 }
 
 void App::ClearWindow() {
@@ -77,7 +54,7 @@ void App::EventLoop() {
 
         if (ev.button == btn_left) {
             focus = -1;
-            for (int i = 0; i < (int)widgets.size(); i++) {
+            for (size_t i = 0; i < widgets.size(); i++) {
                 if (widgets[i]->UnderMouse({ev.pos_x, ev.pos_y})) {
                     focus = i;
                     break;
@@ -87,13 +64,6 @@ void App::EventLoop() {
 
         if (focus != -1) {
             widgets[focus]->Interact(ev);
-        }
-
-        if (ev.keycode == key_left) {
-            MoveItem(list_b, list_a);
-        }
-        if (ev.keycode == key_right) {
-            MoveItem(list_a, list_b);
         }
 
         Refresh();
