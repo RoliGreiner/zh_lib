@@ -8,8 +8,8 @@
 using namespace genv;
 using namespace std;
 
-App::App(int width, int height)
-: width(width), height(height) {
+App::App(int width, int height, int font_size)
+: width(width), height(height), default_font_size(font_size), list_a(nullptr), list_b(nullptr) {
     gout.open(width, height);
     gout << font("LiberationMono-Regular.ttf", 20);
     gout << refresh;
@@ -17,6 +17,8 @@ App::App(int width, int height)
     //widgetek
 
 
+
+    new Label(this, {width / 2, height / 2}, {200, 40}, {255, 255, 255}, "Hello", 16);
 
     ClearWindow();
     Refresh();

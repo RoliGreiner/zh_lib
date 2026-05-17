@@ -18,7 +18,10 @@ struct Color {
     int r, g, b, a;
 };
 
+class Container;
+
 class Widget {
+    friend class Container;
 protected:
     App* app;
     Vector2 position{};
