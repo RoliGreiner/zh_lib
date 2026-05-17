@@ -5,6 +5,7 @@
 #include "app.h"
 #include "button.h"
 #include "list.h"
+#include "label.h"
 // #include "slider.h"
 // #include "text_input.h"
 // #include "text_field.h"
@@ -14,8 +15,8 @@
 using namespace genv;
 using namespace std;
 
-App::App(int width, int height)
-: width(width), height(height), list_a(nullptr), list_b(nullptr) {
+App::App(int width, int height, int font_size)
+: width(width), height(height), default_font_size(font_size), list_a(nullptr), list_b(nullptr) {
     gout.open(width, height);
     gout << font("LiberationMono-Regular.ttf", 20);
     gout << refresh;
@@ -31,6 +32,8 @@ App::App(int width, int height)
 
     new Button(this, {300, 50}, {100, 50}, {255, 255, 255}, "balra",
                [this]{ MoveItem(list_a, list_b); });
+
+    new Label(this, {width / 2, height / 2}, {200, 40}, {255, 255, 255}, "Hello", 16);
 
     ClearWindow();
     Refresh();
