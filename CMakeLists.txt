@@ -16,6 +16,7 @@ add_executable(main
         label.cpp
         container.cpp
         game_master.cpp
+        ai_player.cpp
         menu_scene.cpp
         game_scene.cpp
         end_scene.cpp

@@ -8,9 +8,10 @@
 #include "button.h"
 #include "slider.h"
 #include "label.h"
+#include "menu_scene.h"
 
 EndScene::EndScene(App* app)
-: Scene(app), result_label(nullptr), size_slider(nullptr), game_scene(nullptr) {
+: Scene(app), result_label(nullptr), menu_scene(nullptr) {
     WidgetScope scope(app, this);
 
     int center_x = app->Width() / 2;
@@ -36,16 +37,11 @@ EndScene::EndScene(App* app)
         {center_x, 360},
         {250, 60},
         {100, 180, 100},
-        "Új játék",
+        "Főmenü",
         [this]{
-            if (!game_scene)
-                return;
-            int board_size = size_slider ? size_slider->GetValue() : 15;
-            game_scene->StartNewGame(board_size, true);
-            this->app->SwitchTo(game_scene);
+            if (menu_scene)
+                this->app->SwitchTo(menu_scene);
         });
-
-    size_slider = CreateSizeSelector(center_x, 460, 15, 30, 15);
 
     new Button(
         app,

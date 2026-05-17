@@ -10,18 +10,17 @@
 
 class Slider;
 class Label;
-class GameScene;
+class MenuScene;
 
 class EndScene : public Scene {
     Label* result_label;
-    Slider* size_slider;
-    GameScene* game_scene;
+    MenuScene* menu_scene;
 
 public:
     EndScene(App* app);
 
     void SetResult(GameMaster::State state);
-    void SetGameScene(GameScene* scene) { game_scene = scene; }
+    void SetMenuScene(MenuScene* scene) { menu_scene = scene; }
 };
 
 #endif //END_SCENE_H

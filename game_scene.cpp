@@ -4,6 +4,7 @@
 
 #include "game_scene.h"
 #include "end_scene.h"
+#include "menu_scene.h"
 #include "app.h"
 #include "container.h"
 #include "label.h"
@@ -11,7 +12,7 @@
 #include <algorithm>
 
 GameScene::GameScene(App* app)
-: Scene(app), game(15), turn_label(nullptr), end_scene(nullptr), two_player(true) {
+: Scene(app), game(15), ai('O'), turn_label(nullptr), end_scene(nullptr), menu_scene(nullptr), two_player(true) {
 }
 
 void GameScene::StartNewGame(int board_size, bool two_player_mode) {
@@ -71,9 +72,8 @@ void GameScene::BuildBoard(int board_size) {
         {240, 220, 220},
         "Főmenü",
         [this]{
-            Scene* menu = this->app->PreviousScene();
-            if (menu)
-                this->app->SwitchTo(menu);
+            if (menu_scene)
+                this->app->SwitchTo(menu_scene);
         });
 }
 
@@ -95,20 +95,41 @@ void GameScene::PlaceMarkAt(int row, int column, char mark) {
     cell->AttachWidget(mark_label);
 }
 
-void GameScene::HandleCellClick(int row, int column) {
-    char player = game.CurrentPlayer(); //NE TÖRÖLD KI! MEGCSERÉLI A NYERTEST
-
+void GameScene::ApplyMove(int row, int column) {
+    char player = game.CurrentPlayer();
     if (!game.TryMove(row, column))
         return;
-
     PlaceMarkAt(row, column, player);
+}
 
-    if (game.GetState() != GameMaster::State::Playing) {
-        if (end_scene) {
-            end_scene->SetResult(game.GetState());
-            app->SwitchTo(end_scene);
-        }
+bool GameScene::CheckGameEnd() {
+    if (game.GetState() == GameMaster::State::Playing)
+        return false;
+
+    if (end_scene) {
+        end_scene->SetResult(game.GetState());
+        app->SwitchTo(end_scene);
+    }
+    return true;
+}
+
+void GameScene::TriggerAIMove() {
+    int row, column;
+    if (!ai.ChooseMove(game, row, column))
         return;
+    ApplyMove(row, column);
+}
+
+void GameScene::HandleCellClick(int row, int column) {
+    ApplyMove(row, column);
+
+    if (CheckGameEnd())
+        return;
+
+    if (!two_player && game.CurrentPlayer() == 'O') {
+        TriggerAIMove();
+        if (CheckGameEnd())
+            return;
     }
 
     UpdateTurnIndicator();

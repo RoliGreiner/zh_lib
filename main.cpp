@@ -16,7 +16,8 @@ int main() {
 
     menu->SetGameScene(game);
     game->SetEndScene(end);
-    end->SetGameScene(game);
+    game->SetMenuScene(menu);
+    end->SetMenuScene(menu);
 
     app.SwitchTo(menu);
     app.Start();
