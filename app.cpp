@@ -6,9 +6,7 @@
 #include "button.h"
 #include "list.h"
 #include "label.h"
-// #include "slider.h"
-// #include "text_input.h"
-// #include "text_field.h"
+#include "check_box.h"
 
 #include "graphics.hpp"
 
@@ -28,12 +26,13 @@ App::App(int width, int height, int font_size)
                       {"alma", "körte", "banán", "málna"});
 
     new Button(this, {100, 50}, {100, 50}, {255, 255, 255}, "jobbra",
-               [this]{ MoveItem(list_b, list_a); });
-
-    new Button(this, {300, 50}, {100, 50}, {255, 255, 255}, "balra",
                [this]{ MoveItem(list_a, list_b); });
 
+    new Button(this, {300, 50}, {100, 50}, {255, 255, 255}, "balra",
+               [this]{ MoveItem(list_b, list_a); });
+
     new Label(this, {width / 2, height / 2}, {200, 40}, {255, 255, 255}, "Hello", 16);
+    new CheckBox(this, {500, 50}, {50, 50}, {255, 255, 255}, true);
 
     ClearWindow();
     Refresh();

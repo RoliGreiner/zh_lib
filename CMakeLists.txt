@@ -17,6 +17,7 @@ add_executable(main
         list.cpp
         label.cpp
         container.cpp
+        check_box.cpp
 )
 
 target_link_libraries(main SDL2 SDL2_ttf)
