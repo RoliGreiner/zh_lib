@@ -8,19 +8,51 @@
 #include "widget.h"
 #include <vector>
 
+#include "spin_box.h"
+
+class Label;
+class Button;
+class Widget;
+class List;
+class TextInput;
+class SpinBox;
+
 using namespace std;
 
-class Widget;
+struct Rack {
+    string name;
+    int size;
+};
 
 class App {
     int width;
     int height;
     int default_font_size;
 
+    //Könnyebb kezelhetőség
+    vector<Rack*> racks = {};
+    vector<Rack*> server_structure = {};
+
+
     vector<Widget*> widgets;
 
-    Widget* list_a;
-    Widget* list_b;
+    TextInput* rack_name;
+    List* rack_size;
+    Button* update_rack;
+    List* rack_configs;
+    SpinBox* number_of_new_racks;
+    Button* add_rack;
+    Button* remove_rack;
+    List* server;
+    Label* server_size;
+
+protected:
+    void UpdateRacks();
+    void AddToServer();
+    void RemoveFromServer();
+    string CalculateServerSize();
+    void UpdateRackConfig();
+    void UpdateServer();
 
 public:
     App(int width = 1200, int height = 1000, int font_size = 20);
@@ -31,7 +63,6 @@ public:
     int FontSize() const { return default_font_size; }
 
     void RegisterWidget(Widget* w);
-    void MoveItem(Widget* from, Widget* to);
     void ClearWindow();
     void Refresh();
     void EventLoop();

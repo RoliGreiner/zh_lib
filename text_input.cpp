@@ -57,5 +57,5 @@ void TextInput::Interact(event ev) {
 }
 
 string TextInput::GetText() {
-    return text;
+    return text == "" ? ghost_text : text;
 }

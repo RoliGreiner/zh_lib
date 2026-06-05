@@ -9,20 +9,35 @@
 
 using namespace std;
 
+enum class ListType { Dropdown, Plain };
+
 class List : public Widget {
 protected:
-    vector<string> items;
+    vector<string> items = {};
     int selected_index;
     int scroll_offset;
     int max_visible_items;
     bool opened;
+    ListType type;
 
 public:
-    List(App* app, Vector2 position, Vector2 size, Color texture, vector<string> items, int max_visible_items = 5);
+    List(App* app, Vector2 position, Vector2 size, Color texture, vector<string> items,
+         int max_visible_items = 5, ListType type = ListType::Dropdown);
     void Draw() override;
     void Interact(event ev) override;
     bool UnderMouse(Vector2 mouse_pos) override;
     string GetValue();
+    int GetSize() {return items.size();}
+    int GetCurrentIndex() {return selected_index;}
+    void SetCurrentIndex(int index) {
+        if (index < 0 || index >= items.size()) {
+            return;
+        }
+        selected_index = index;
+    }
+    vector<string> GetContent() {return items;}
+    void OverwriteContent(vector<string> items) {this->items = items;}
+    void RemoveAt(int index);
     void RemoveCurrent();
     void AddItem(string item);
     void FocusLost();
