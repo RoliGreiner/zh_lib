@@ -8,96 +8,129 @@
 #include "label.h"
 #include "text_input.h"
 #include "spin_box.h"
+#include "slider.h"
+#include "check_box.h"
+#include "progress_bar.h"
 
 #include "graphics.hpp"
 #include <iostream>
+#include <algorithm>
 
 using namespace genv;
 using namespace std;
 
-App::App(int width, int height, int font_size)
-: width(width), height(height), default_font_size(font_size) {
+App::App(int width, int height, int font_size, Theme theme)
+    : width(width), height(height), default_font_size(font_size), theme(theme) {
     gout.open(width, height);
-    gout << font("LiberationMono-Regular.ttf", 20);
-    gout << refresh;
+    gout << font("LiberationMono-Regular.ttf", font_size);
+
+    vector<string> subject_names = {"Magyar", "Matek", "Történelem", "Fizika", "Informatika"};
+    for (string name : subject_names) {
+        subjects.push_back({name, {}});
+    }
+
+    // widgets
+    new Label(
+        this,
+        {20, 30},
+        {0, 0},
+        "Tanuló neve",
+        14, Label::Align::Left);
+    student_name = new TextInput(
+        this,
+        {170, 60},
+        {300, 40},
+        "Kovács Péter");
+    new Label(
+        this,
+        {20, 100},
+        {0, 0},
+        "Tantárgy",
+        14, Label::Align::Left);
+    default_subjects = new List(
+        this,
+        {170, 130},
+        {300, 40},
+        subject_names,
+        5, ListType::Plain);
+    new Label(
+        this,
+        {20, 340},
+        {0, 0},
+        "Jegy:",
+        14, Label::Align::Left);
+    selected_mark = new SpinBox(
+        this,
+        {100, 340},
+        {60, 40},
+        1,
+        5,
+        1,
+        5);
+    new Button(
+        this,
+        {230, 340},
+        {180, 40},
+        "Bejegyez",
+        [this]{NewEntry();});
 
     new Label(
         this,
-        {100, 50},
-        {100, 40},
-        {255, 255, 255},
-        "Név:", 20);
-    rack_name = new TextInput(
-        this,
-        {300, 50},
-        {300, 40},
-        {255, 255, 255},
-        "Server-XY");
-    new Label(
-        this,
-        {100, 100},
-        {100, 40},
-        {255, 255, 255},
-        "Tipus:", 20);
-    rack_size = new List(
-        this,
-        {175, 100},
-        {50, 40},
-        {255, 255, 255},
-        {"U1", "U2", "U3", "U4"}, 4, ListType::Plain);
-    update_rack = new Button(
-        this,
-        {375, 100},
-        {150, 40},
-        {255, 255, 255},
-        "Új/Frissít",
-        [this]{this->UpdateRacks();});
-    rack_configs = new List(
-        this,
-        {150, 300},
-        {200, 40},
-        {255, 255, 255},
-        {}, 6, ListType::Plain);
-    new Label(
-        this,
-        {300, 300},
-        {50, 40},
-        {255, 255, 255},
-        "db:",
-        20);
-    number_of_new_racks = new SpinBox(
-        this,
-        {400, 300},
-        {100, 40},
-        {255, 255, 255},
-        1, 100, 1, 1);
-    add_rack = new Button(
-        this,
-        {400, 350},
-        {100, 40},
-        {255, 255, 255},
-        "Bővítés",
-        [this]{AddToServer();});
-    remove_rack = new Button(
-        this,
-        {400, 400},
-        {100, 40},
-        {255, 255, 255},
-        "Törlés",
-        [this]{RemoveFromServer();});
-    server = new List(
-        this,
-        {725, 50},
-        {450, 40},
-        {255, 255, 255},
-        {}, 20, ListType::Plain);
-    server_size = new Label(
-        this,
-        {width/2, 950},
+        {350, 30},
         {0, 0},
-        {255, 255, 255},
-        CalculateServerSize(),
-        20);
+        "Napló (kiválasztott tantárgy)",
+        14, Label::Align::Left);
+    noted_marks = new List(
+        this,
+        {500, 60},
+        {300, 40},
+        {},
+        6, ListType::Plain);
+    new Button(
+        this,
+        {500, 310},
+        {300, 40},
+        "Törlés",
+        [this]{RemoveMark();});
+    new Label(
+        this,
+        {350, 350},
+        {0, 0},
+        "Tantárgyankénti átlagok",
+        14, Label::Align::Left);
+    average_per_subject = new List(
+        this,
+        {500, 380},
+        {300, 40},
+        {},
+        5, ListType::Plain);
+
+    new Label(
+        this,
+        {170, 400},
+        {0, 0},
+        "Összeg bejegyzés",
+        16, Label::Align::Center);
+    number_of_entry = new Label(
+        this,
+        {170, 440},
+        {0, 0},
+        "",
+        32, Label::Align::Center);
+    new Label(
+        this,
+        {170, 500},
+        {0, 0},
+        "Iskola összesített átlaga",
+        16, Label::Align::Center);
+    school_average = new Label(
+        this,
+        {170, 540},
+        {0, 0},
+        "",
+        32, Label::Align::Center);
+
+    Update();
 
     ClearWindow();
     Refresh();
@@ -115,7 +148,9 @@ void App::RegisterWidget(Widget* w) {
 }
 
 void App::ClearWindow() {
-    gout << move_to(0, 0) << color(100, 150, 200) << box(width, height);
+    gout << move_to(0, 0)
+         << color(theme.window.r, theme.window.g, theme.window.b)
+         << box(width, height);
 }
 
 void App::Refresh() {
@@ -129,15 +164,24 @@ void App::EventLoop() {
     event ev;
     int focus = -1;
     while (gin >> ev && ev.keycode != key_escape) {
+        mouse = {ev.pos_x, ev.pos_y};       // track the cursor for hover effects
         ClearWindow();
 
-        if (ev.button == btn_left) {
-            focus = -1;
+        // Re-evaluate focus on a left click; notify the widgets that gain/lose it.
+        if (ev.type == ev_mouse && ev.button == btn_left) {
+            int new_focus = -1;
             for (int i = 0; i < (int)widgets.size(); i++) {
                 if (widgets[i]->UnderMouse({ev.pos_x, ev.pos_y})) {
-                    focus = i;
+                    new_focus = i;
                     break;
                 }
+            }
+            if (new_focus != focus) {
+                if (focus != -1)
+                    widgets[focus]->FocusLost();
+                if (new_focus != -1)
+                    widgets[new_focus]->FocusGained();
+                focus = new_focus;
             }
         }
 
@@ -145,6 +189,7 @@ void App::EventLoop() {
             widgets[focus]->Interact(ev);
         }
 
+        Update();
         Refresh();
     }
 }
@@ -153,96 +198,49 @@ void App::Start() {
     EventLoop();
 }
 
-void App::UpdateRacks() {
-    string name = rack_name->GetText();
-    int size = rack_size->GetCurrentIndex() + 1;
-
-    for (Rack* rack: racks) {
-        if (rack->name == name) {
-            if (rack->size != size) {
-                rack->size = size;
-                UpdateRackConfig();
-            }
+void App::NewEntry() {
+    string name = student_name->GetText();
+    int subject_index = default_subjects->GetCurrentIndex();
+    int mark = selected_mark->GetValue();
+    for (Grade grade : subjects[subject_index].grades) {
+        if (grade.student == name) {
             return;
         }
     }
-
-    racks.push_back(new Rack(name, size));
-    UpdateRackConfig();
+    subjects[subject_index].grades.push_back({name, mark});
 }
 
-void App::AddToServer() {
-    if (rack_configs->GetSize() == 0) {
+void App::RemoveMark() {
+    if (subjects[default_subjects->GetCurrentIndex()].grades.empty())
         return;
-    }
-    Rack* rack = racks[rack_configs->GetCurrentIndex()];
-    int quantity = number_of_new_racks->GetValue();
 
-    for (; quantity != 0; quantity--) {
-        server_structure.push_back(rack);
-    }
-    cout << to_string(server_structure.size()) << endl;
-    UpdateServer();
+    subjects[default_subjects->GetCurrentIndex()].grades.erase(subjects[default_subjects->GetCurrentIndex()].grades.begin() + noted_marks->GetCurrentIndex());
 }
 
-void App::RemoveFromServer() {
-    if (server_structure.size() == 0) {
-        return;
+void App::Update() {
+    ostringstream oss;
+
+    vector<string> temp_record;
+    for (Grade grade : subjects[default_subjects->GetCurrentIndex()].grades) {
+        temp_record.push_back(grade.ToString());
     }
+    noted_marks->OverwriteContent(temp_record);
 
-    int selected_row = server->GetCurrentIndex();
-    int progress = 0;
-    for (int i = 0; i < server_structure.size(); i++) {
-        if (progress <= selected_row && selected_row <= progress + server_structure[i]->size - 1) {
-            server_structure.erase(server_structure.begin() + i);
-            UpdateServer();
-            server->SetCurrentIndex((server->GetSize() <= progress ? progress - 1 : progress));
-            return;
-        }
-        progress += server_structure[i]->size;
-    }
-}
-
-string App::CalculateServerSize() {
-    return to_string(server_structure.size()) + " gép " + to_string(server->GetSize()) + "U helyet foglal el";
-}
-
-
-void App::UpdateRackConfig() {
-    vector<string> new_racks = {};
-
-    for (Rack* rack: racks) {
-        string name = rack->name + "(U" + to_string(rack->size) + ")";
-        new_racks.push_back(name);
-    }
-
-    rack_configs->OverwriteContent(new_racks);
-    UpdateServer();
-}
-
-void App::UpdateServer() {
-    vector<string> new_server = {};
-
-    for (Rack* rack: server_structure) {
-        switch (rack->size) {
-            case 1:
-                new_server.push_back("<" + rack->name + "/" + "1");
-                break;
-            case 2:
-                new_server.push_back("/" + rack->name + "/" + "1");
-                new_server.push_back("\\" + rack->name + "/" + "2");
-                break;
-            default:
-
-                new_server.push_back("/" + rack->name + "/" + "1");
-                for (int i = 2; i < rack->size; i++) {
-                    new_server.push_back("|" + rack->name + "/" + to_string(i));
-                }
-                new_server.push_back("\\" + rack->name + "/" + "4");
-                break;
+    vector<string> temp_average = {};
+    int sum = 0;
+    float average_sum = 0;
+    int number_of_graded_subject = 0;
+    for (SubjectRecord record : subjects) {
+        temp_average.push_back(record.ToString());
+        if (!record.grades.empty()) {
+            sum += record.grades.size();
+            average_sum += record.Average();
+            number_of_graded_subject++;
         }
     }
+    average_per_subject->OverwriteContent(temp_average);
+    number_of_entry->UpdateText(to_string(sum));
 
-    server->OverwriteContent(new_server);
-    server_size->UpdateText(CalculateServerSize());
+    oss << fixed << setprecision(2) << average_sum / number_of_graded_subject;
+    school_average->UpdateText((average_sum == 0 ? "-" : oss.str()));
 }

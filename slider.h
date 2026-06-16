@@ -21,11 +21,11 @@ protected:
     bool pressed = false;
     Orientation orientation;
 public:
-    Slider(App* app, Vector2 position, Vector2 size, Color texture, int min_value, int max_value, int value = 0, Orientation orientation = Orientation::HORIZONTAL, bool transparent = false);
+    Slider(App* app, Vector2 position, Vector2 size, int min_value, int max_value, int value = 0, Orientation orientation = Orientation::HORIZONTAL, bool transparent = false, Color color_override = USE_THEME);
     void Draw() override;
     void Interact(event ev) override;
     int GetValue() { return value; }
-    void SetValue(int v) { value = std::clamp(v, min_value, max_value); }
+    void SetValue(int value) { this->value = std::clamp(value, min_value, max_value); }
 };
 
 #endif //SLIDER_H

@@ -6,8 +6,8 @@
 #include <sstream>
 #include <algorithm>
 
-TextField::TextField(App* app, Vector2 position, Vector2 size, Color texture, vector<string> text, int font_size, bool resizable, bool transparent)
-    : Widget(app, position, size, texture, transparent) {
+TextField::TextField(App* app, Vector2 position, Vector2 size, vector<string> text, int font_size, bool resizable, bool transparent, Color color_override)
+    : Widget(app, position, size, color_override, transparent) {
     this->raw_text = text;
     this->font_size = font_size;
     this->resizable = resizable;
@@ -20,7 +20,7 @@ void TextField::UpdateCanvas() {
 
     wrapped_text.clear();
 
-    for (int i = 0; i < raw_text.size(); i++) {
+    for (int i = 0; i < (int)raw_text.size(); i++) {
         stringstream ss(raw_text[i]);
         string word;
         string current_line = "";
@@ -45,45 +45,40 @@ void TextField::UpdateCanvas() {
     int canvas_width = size.x - 2 * BORDER_SIZE;
     int canvas_height = wrapped_text.size() * gout.cascent() + gout.cdescent() + 2 * APPEND;
 
-    /*
-    if (canvas_width < 1) {
-        canvas_width = 1;
-    }
-    if (canvas_height < 1) {
-        canvas_height = 1;
-    }
-    */
+    Color fill = Resolve(GetTheme().surface);
+    Color text_color   = GetTheme().text;
 
     can = canvas(canvas_width, canvas_height);
     can.load_font("LiberationMono-Regular.ttf", font_size);
-    can << color(texture.r, texture.g, texture.b)
+    can << color(fill.r, fill.g, fill.b)
         << move_to(0, 0)
         << box(canvas_width, canvas_height);
 
-    can << color(0, 0, 0);
-    for (int i = 0; i < wrapped_text.size(); ++i) {
+    can << color(text_color.r, text_color.g, text_color.b);
+    for (int i = 0; i < (int)wrapped_text.size(); ++i) {
         can << move_to(APPEND, i * (gout.cascent() + gout.cdescent()) + APPEND)
             << text(wrapped_text[i]);
     }
 }
 
 void TextField::Draw() {
-    //keret
-    gout << move_to(position.x - size.x / 2, position.y - size.y / 2)
-         << color(60, 60, 60)
-         << box(size.x, size.y);
+    Color fill = Resolve(GetTheme().surface);
+    Color border = active ? GetTheme().accent : GetTheme().border;
+    int radius = Radius();
+    int x = position.x - size.x / 2;
+    int y = position.y - size.y / 2;
 
-    //belseje
-    gout << move_to(position.x - size.x / 2 + BORDER_SIZE, position.y - size.y / 2 + BORDER_SIZE)
-         << color(texture.r, texture.g, texture.b)
-         << box(size.x - BORDER_SIZE * 2, size.y - BORDER_SIZE * 2);
+    // lekerekített keret + belső háttér; a görgetett szövegvászon a belsőre kerül
+    FillRoundedBox(x, y, size.x, size.y, radius, border);
+    FillRoundedBox(x + BORDER_SIZE, y + BORDER_SIZE,
+                   size.x - BORDER_SIZE * 2, size.y - BORDER_SIZE * 2, radius - BORDER_SIZE, fill);
 
-    gout << stamp(can, 0, current_line * (gout.cascent() + gout.cdescent()), size.x - 2 * BORDER_SIZE, size.y - 2 * BORDER_SIZE, position.x - size.x / 2 + BORDER_SIZE, position.y - size.y / 2 + BORDER_SIZE);
+    gout << stamp(can, 0, current_line * (gout.cascent() + gout.cdescent()),
+                  size.x - 2 * BORDER_SIZE, size.y - 2 * BORDER_SIZE,
+                  position.x - size.x / 2 + BORDER_SIZE, position.y - size.y / 2 + BORDER_SIZE);
 }
 
-
 void TextField::Interact(event ev) {
-    //méretezés
     if (ev.type == ev_mouse && resizable) {
         if ((size.x / 2 >= abs(ev.pos_x - position.x) && size.x / 2 <= abs(ev.pos_x - position.x) + 2) ||
             (size.y / 2 >= abs(ev.pos_y - position.y) && size.y / 2 <= abs(ev.pos_y - position.y) + 2)) {

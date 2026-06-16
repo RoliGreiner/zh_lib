@@ -3,23 +3,22 @@
 //
 
 #include "list.h"
+#include <algorithm>
 
-List::List(App* app, Vector2 position, Vector2 size, Color texture, vector<string> items,
-           int max_visible_items, ListType type)
-    : Widget(app, position, size, texture) {
+List::List(App* app, Vector2 position, Vector2 size, vector<string> items, int max_visible_items, ListType type, Color color_override)
+    : Widget(app, position, size, color_override) {
     this->items = items;
     this->max_visible_items = max_visible_items;
     this->type = type;
     selected_index = 0;
     scroll_offset = 0;
-    opened = false; // a Plain lista sosem használja, mindig "nyitva" rajzol
+    opened = false;
 }
 
 bool List::UnderMouse(Vector2 mouse_pos) {
     Vector2 top_left = {position.x - size.x / 2, position.y - size.y / 2};
 
     if (type == ListType::Plain) {
-        // A teljes (fix magasságú) listaterület számít kattinthatónak.
         int list_height = max_visible_items * size.y;
         return mouse_pos.x > top_left.x && mouse_pos.x < top_left.x + size.x &&
                mouse_pos.y > top_left.y && mouse_pos.y < top_left.y + list_height;
@@ -42,75 +41,97 @@ bool List::UnderMouse(Vector2 mouse_pos) {
 void List::Draw() {
     Vector2 top_left = {position.x - size.x / 2, position.y - size.y / 2};
     const int OUTLINE = 2;
+    int R = Radius();
+    int ir = R - OUTLINE;
+
+    Color surface = Resolve(GetTheme().surface);
+    Color rowsel = GetTheme().selection;
+    Color empty_row = GetTheme().surface_alt;
+    Color grid = GetTheme().border;
+    Color tc = GetTheme().text;
+    Vector2 m = MousePos();
 
     if (type == ListType::Plain) {
-        // Fix méretű lista: mindig max_visible_items sor magas, függetlenül attól,
-        // hány elem van benne -> a mérete sosem változik.
         int list_height = max_visible_items * size.y;
 
-        // háttér / keret
-        gout << color(100, 100, 100)
-             << move_to(top_left.x, top_left.y)
-             << box(size.x, list_height);
+        // háttér / rács (lekerekített külső)
+        FillRoundedBox(top_left.x, top_left.y, size.x, list_height, R, grid);
 
         int visible_count = min((int)items.size(), max_visible_items);
 
-        // látható elemek
-        for (int i = 0; i < visible_count; i++) {
-            int actual_index = scroll_offset + i;
+        for (int i = 0; i < max_visible_items; i++) {
             int item_y = top_left.y + i * size.y;
+            bool top = (i == 0);
+            bool bot = (i == max_visible_items - 1);
 
-            gout << (actual_index == selected_index ? color(150, 200, 255) : color(240, 240, 240));
-            gout << move_to(top_left.x + OUTLINE, item_y + OUTLINE)
-                 << box(size.x - OUTLINE * 2, size.y - OUTLINE * 2);
+            Color row;
+            bool has_item = i < visible_count;
+            if (has_item) {
+                int actual_index = scroll_offset + i;
+                bool hov = m.x > top_left.x && m.x < top_left.x + size.x &&
+                           m.y > item_y && m.y < item_y + size.y;
+                row = (actual_index == selected_index) ? rowsel
+                     : (hov ? Mix(surface, GetTheme().accent, 0.18f) : surface);
+            } else {
+                row = empty_row;
+            }
 
-            gout << color(0, 0, 0)
-                 << move_to(top_left.x + 5, item_y + size.y / 2 - gout.cascent() / 2)
-                 << genv::text(items[actual_index]);
-        }
+            FillRoundedBoxEx(top_left.x + OUTLINE, item_y + OUTLINE,
+                             size.x - OUTLINE * 2, size.y - OUTLINE * 2, ir,
+                             top, top, bot, bot, row);
 
-        // üres sorok kitöltése, hogy a doboz mindig tele legyen rajzolva
-        for (int i = visible_count; i < max_visible_items; i++) {
-            int item_y = top_left.y + i * size.y;
-            gout << color(texture.r, texture.g, texture.b)
-                 << move_to(top_left.x + OUTLINE, item_y + OUTLINE)
-                 << box(size.x - OUTLINE * 2, size.y - OUTLINE * 2);
+            if (has_item) {
+                gout << color(tc.r, tc.g, tc.b)
+                     << move_to(top_left.x + 6, item_y + size.y / 2 - gout.cascent() / 2)
+                     << genv::text(items[scroll_offset + i]);
+            }
         }
         return;
     }
 
-    // --- Dropdown mód (eredeti viselkedés) ---
-    gout << color(100, 100, 100) << move_to(top_left.x, top_left.y) << box(size.x, size.y);
-    gout << color(texture.r, texture.g, texture.b)
-         << move_to(top_left.x + OUTLINE, top_left.y + OUTLINE)
-         << box(size.x - OUTLINE * 2, size.y - OUTLINE * 2);
+    // --- Dropdown ---
+    // Ha nyitva van, a sáv alja egyenes (a lenyíló panelhez illeszkedik).
+    bool op = opened;
+    FillRoundedBoxEx(top_left.x, top_left.y, size.x, size.y, R,
+                     true, true, !op, !op, grid);
+    FillRoundedBoxEx(top_left.x + OUTLINE, top_left.y + OUTLINE,
+                     size.x - OUTLINE * 2, size.y - OUTLINE * 2, ir,
+                     true, true, !op, !op, surface);
 
     string display_text = items.empty() ? "" : items[selected_index];
-    gout << color(0, 0, 0)
-         << move_to(top_left.x + 5, position.y - gout.cascent() / 2)
+    gout << color(tc.r, tc.g, tc.b)
+         << move_to(top_left.x + 6, position.y - gout.cascent() / 2)
          << genv::text(display_text);
 
-    gout << move_to(top_left.x + size.x - 20, position.y - gout.cascent() / 2) << genv::text("V");
+    Color arrow = GetTheme().text_muted;
+    gout << color(arrow.r, arrow.g, arrow.b)
+         << move_to(top_left.x + size.x - 18, position.y - gout.cascent() / 2)
+         << genv::text(op ? "^" : "v");
 
-    if (opened) {
+    if (op) {
         int list_start_y = top_left.y + size.y;
         int visible_count = min((int)items.size(), max_visible_items);
 
-        gout << color(100, 100, 100)
-             << move_to(top_left.x, list_start_y)
-             << box(size.x, visible_count * size.y);
+        // panel: teteje egyenes, alja lekerekített
+        FillRoundedBoxEx(top_left.x, list_start_y, size.x, visible_count * size.y, R,
+                         false, false, true, true, grid);
 
         for (int i = 0; i < visible_count; i++) {
             int actual_index = scroll_offset + i;
             int item_y = list_start_y + i * size.y;
+            bool bot = (i == visible_count - 1);
 
-            gout << (actual_index == selected_index ? color(150, 200, 255) : color(240, 240, 240));
+            bool hov = m.x > top_left.x && m.x < top_left.x + size.x &&
+                       m.y > item_y && m.y < item_y + size.y;
+            Color row = (actual_index == selected_index) ? rowsel
+                       : (hov ? Mix(surface, GetTheme().accent, 0.18f) : surface);
 
-            gout << move_to(top_left.x + OUTLINE, item_y + OUTLINE)
-                 << box(size.x - OUTLINE * 2, size.y - OUTLINE * 2);
+            FillRoundedBoxEx(top_left.x + OUTLINE, item_y + OUTLINE,
+                             size.x - OUTLINE * 2, size.y - OUTLINE * 2, ir,
+                             false, false, bot, bot, row);
 
-            gout << color(0, 0, 0)
-                 << move_to(top_left.x + 5, item_y + size.y / 2 - gout.cascent() / 2)
+            gout << color(tc.r, tc.g, tc.b)
+                 << move_to(top_left.x + 6, item_y + size.y / 2 - gout.cascent() / 2)
                  << genv::text(items[actual_index]);
         }
     }
@@ -120,7 +141,6 @@ void List::Interact(event ev) {
     Vector2 top_left = {position.x - size.x / 2, position.y - size.y / 2};
 
     if (type == ListType::Plain) {
-        // Kattintás: csak kiválaszt egy elemet, nincs nyitás/csukás.
         if (ev.type == ev_mouse && ev.button == btn_left) {
             int list_height = max_visible_items * size.y;
             bool in_list = ev.pos_x > top_left.x && ev.pos_x < top_left.x + size.x &&
@@ -134,7 +154,6 @@ void List::Interact(event ev) {
             }
         }
 
-        // Görgetés
         if (ev.type == ev_mouse && (int)items.size() > max_visible_items) {
             if (ev.button == btn_wheeldown && scroll_offset < (int)items.size() - max_visible_items) {
                 scroll_offset++;
@@ -145,14 +164,13 @@ void List::Interact(event ev) {
         return;
     }
 
-    // --- Dropdown mód (eredeti viselkedés) ---
+    // --- Dropdown ---
     if (ev.type == ev_mouse && ev.button == btn_left) {
         bool in_main = Widget::UnderMouse({ev.pos_x, ev.pos_y});
 
         if (in_main) {
             opened = !opened;
-        }
-        else if (opened) {
+        } else if (opened) {
             int list_start_y = top_left.y + size.y;
             int visible_count = min((int)items.size(), max_visible_items);
             bool in_list = ev.pos_x > top_left.x && ev.pos_x < top_left.x + size.x &&
@@ -161,7 +179,6 @@ void List::Interact(event ev) {
             if (in_list) {
                 int clicked_relative = (ev.pos_y - list_start_y) / size.y;
                 int new_index = scroll_offset + clicked_relative;
-
                 if (new_index != selected_index) {
                     selected_index = new_index;
                 }
@@ -172,8 +189,8 @@ void List::Interact(event ev) {
         }
     }
 
-    if (ev.type == ev_mouse && opened && items.size() > max_visible_items) {
-        if (ev.button == btn_wheeldown && scroll_offset < items.size() - max_visible_items) {
+    if (ev.type == ev_mouse && opened && (int)items.size() > max_visible_items) {
+        if (ev.button == btn_wheeldown && scroll_offset < (int)items.size() - max_visible_items) {
             scroll_offset++;
         } else if (ev.button == btn_wheelup && scroll_offset > 0) {
             scroll_offset--;
@@ -181,30 +198,39 @@ void List::Interact(event ev) {
     }
 }
 
-string List::GetValue() {
-    return items[selected_index];
-}
+string List::GetValue() { return items[selected_index]; }
 
 void List::RemoveCurrent() {
     if (items.empty()) return;
     items.erase(items.begin() + selected_index);
     selected_index = 0;
 
-    // a görgetés ne mutasson az elemek vége mögé
     int max_scroll = max(0, (int)items.size() - max_visible_items);
     if (scroll_offset > max_scroll) scroll_offset = max_scroll;
 }
 
 void List::RemoveAt(int index) {
-    if (index >= items.size() || index < 0)
-        return;
+    if (index >= (int)items.size() || index < 0) return;
     items.erase(items.begin() + index);
 }
 
-void List::AddItem(string item) {
-    items.push_back(item);
-}
+void List::AddItem(string item) { items.push_back(item); }
 
 void List::FocusLost() {
+    Widget::FocusLost();
     opened = false;
+}
+
+void List::OverwriteContent(vector<string> items) {
+    this->items = items;
+    int n = (int)this->items.size();
+
+    if (selected_index >= n)
+        selected_index = n > 0 ? n - 1 : 0;
+
+    int max_scroll = n - max_visible_items;
+    if (max_scroll < 0)
+        max_scroll = 0;
+    if (scroll_offset > max_scroll)
+        scroll_offset = max_scroll;
 }

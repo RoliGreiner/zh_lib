@@ -20,8 +20,7 @@ protected:
     void Decrement();
 
 public:
-    SpinBox(App* app, Vector2 position, Vector2 size, Color texture,
-            int min_value, int max_value, int step = 1, int initial_value = 0);
+    SpinBox(App* app, Vector2 position, Vector2 size, int min_value, int max_value, int step = 1, int initial_value = 0, Color color_override = USE_THEME);
     void Draw() override;
     void Interact(event ev) override;
     int GetValue() const;

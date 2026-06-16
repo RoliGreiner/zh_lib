@@ -4,25 +4,30 @@
 
 #include "button.h"
 
-Button::Button(App* app, Vector2 position, Vector2 size, Color texture, string text, function<void()> on_press)
-: Widget(app, position, size, texture) {
+Button::Button(App* app, Vector2 position, Vector2 size, string text, function<void()> on_press, Color color_override)
+    : Widget(app, position, size, color_override) {
     this->text = text;
     this->on_press = on_press;
 }
 
 void Button::Draw() {
-    //keret
-    gout << move_to(position.x - size.x / 2, position.y - size.y / 2)
-            << color(60, 60, 60)
-            << box(size.x, size.y);
+    Color base = Resolve(GetTheme().accent);
+    Color fill;
+    if (IsThemeColor(texture)) {
+        fill = pressed ? GetTheme().accent_pressed : (Hovered() ? GetTheme().accent_hover : base);
+    } else {
+        fill = pressed ? Darken(base, 38) : (Hovered() ? Lighten(base, 26) : base);
+    }
 
-    //belseje
-    gout << move_to(position.x - size.x / 2 + BORDER_SIZE, position.y - size.y / 2 + BORDER_SIZE)
-            << (pressed ? color(texture.r - 50, texture.g - 50, texture.b - 50) : color(texture.r, texture.g, texture.b))
-            << box(size.x - BORDER_SIZE * 2, size.y - BORDER_SIZE * 2);
+    int radius = Radius();
+    int x = position.x - size.x / 2;
+    int y = position.y - size.y / 2;
 
-    //szüveg
-    gout << color(0, 0, 0)
+    FillRoundedBox(x, y, size.x, size.y, radius, GetTheme().border);
+    FillRoundedBox(x + BORDER_SIZE, y + BORDER_SIZE, size.x - BORDER_SIZE * 2, size.y - BORDER_SIZE * 2, radius - BORDER_SIZE, fill);
+
+    Color text_color = GetTheme().text_on_accent;
+    gout << color(text_color.r, text_color.g, text_color.b)
          << move_to(position.x - gout.twidth(text) / 2, position.y - (gout.cascent() + gout.cdescent()) / 2)
          << genv::text(text);
 }

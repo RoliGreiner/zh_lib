@@ -4,29 +4,34 @@
 
 #include "check_box.h"
 
-CheckBox::CheckBox(App *app, Vector2 position, Vector2 size, Color texture, bool state, bool transparent)
-: Widget(app, position, size, texture, transparent) {
+CheckBox::CheckBox(App* app, Vector2 position, Vector2 size, bool state, bool transparent, Color color_override)
+    : Widget(app, position, size, color_override, transparent) {
     checked = state;
 }
 
 void CheckBox::Draw() {
-    if (!transparent) {
-        gout << move_to(position.x - size.x / 2, position.y - size.y / 2)
-             << color(0, 0, 0)
-             << box(size.x, size.y);
+    if (transparent)
+        return;
 
-        gout << move_to(position.x - size.x / 2 + BORDER_SIZE,
-                        position.y - size.y / 2 + BORDER_SIZE)
-             << color(texture.r, texture.g, texture.b)
-             << box(size.x - BORDER_SIZE * 2, size.y - BORDER_SIZE * 2);
+    Color accent = Resolve(GetTheme().accent);
+    Color box_fill = checked ? (Hovered() ? GetTheme().accent_hover : accent)
+                             : (Hovered() ? Mix(GetTheme().surface, GetTheme().accent, 0.18f) : GetTheme().surface);
+    Color bord = checked ? accent : GetTheme().border;
 
-        if (checked) {
-            gout << color(0, 0, 0)
-                 << move_to(position.x - size.x / 2, position.y - size.y / 2)
-                 << line_to(position.x + size.x / 2, position.y + size.y / 2)
-                 << move_to(position.x + size.x / 2, position.y - size.y / 2)
-                 << line_to(position.x - size.x / 2, position.y + size.y / 2);
-        }
+    int radius = Radius();
+    int x = position.x - size.x / 2;
+    int y = position.y - size.y / 2;
+
+    FillRoundedBox(x, y, size.x, size.y, radius, bord);
+    FillRoundedBox(x + BORDER_SIZE, y + BORDER_SIZE,
+                   size.x - BORDER_SIZE * 2, size.y - BORDER_SIZE * 2, radius - BORDER_SIZE, box_fill);
+
+    // pipa
+    if (checked) {
+        Color tick = GetTheme().text_on_accent;
+        gout << color(tick.r, tick.g, tick.b)
+             << move_to(position.x - size.x / 2 + 5, position.y - size.y / 2 + 5) << line_to(position.x + size.x / 2 - 5, position.y + size.y / 2 - 5)
+             << move_to(position.x - size.x / 2 + 5, position.y + size.y / 2 - 5) << line_to(position.x + size.x / 2 - 5, position.y - size.y / 2 + 5);
     }
 }
 

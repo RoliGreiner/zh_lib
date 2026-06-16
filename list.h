@@ -21,26 +21,23 @@ protected:
     ListType type;
 
 public:
-    List(App* app, Vector2 position, Vector2 size, Color texture, vector<string> items,
-         int max_visible_items = 5, ListType type = ListType::Dropdown);
+    List(App* app, Vector2 position, Vector2 size, vector<string> items, int max_visible_items = 5, ListType type = ListType::Dropdown, Color color_override = USE_THEME);
     void Draw() override;
     void Interact(event ev) override;
     bool UnderMouse(Vector2 mouse_pos) override;
+    void FocusLost() override;
     string GetValue();
-    int GetSize() {return items.size();}
-    int GetCurrentIndex() {return selected_index;}
+    int GetSize() { return items.size(); }
+    int GetCurrentIndex() { return selected_index; }
     void SetCurrentIndex(int index) {
-        if (index < 0 || index >= items.size()) {
-            return;
-        }
+        if (index < 0 || index >= (int)items.size()) return;
         selected_index = index;
     }
-    vector<string> GetContent() {return items;}
-    void OverwriteContent(vector<string> items) {this->items = items;}
+    vector<string> GetContent() { return items; }
+    void OverwriteContent(vector<string> items);
     void RemoveAt(int index);
     void RemoveCurrent();
     void AddItem(string item);
-    void FocusLost();
 };
 
 #endif // LIST_H

@@ -16,7 +16,7 @@ protected:
     bool pressed = false;
     function<void()> on_press;
 public:
-    Button(App* app, Vector2 position, Vector2 size, Color texture, string text, function<void()> on_press);
+    Button(App* app, Vector2 position, Vector2 size, string text, function<void()> on_press, Color color_override = USE_THEME);
     void Draw() override;
     void Interact(event ev) override;
 };
